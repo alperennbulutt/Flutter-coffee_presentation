@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "321085996954",
+    "project_id": "karaca-b4db9",
+    "storage_bucket": "karaca-b4db9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321085996954:android:3d5f8ac6ad8b1e09134423",
+        "android_client_info": {
+          "package_name": "com.example.karaca_odev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "321085996954-25v70ccnhfsquloihntu6pjhki5larqg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXIM0usoBmn_XapJtQl-Uk7bSnmgMrzDg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "321085996954-25v70ccnhfsquloihntu6pjhki5larqg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
