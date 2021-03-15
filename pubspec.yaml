@@ -30,6 +30,10 @@ dependencies:
   cupertino_icons: ^1.0.0
   cloud_firestore: ^1.0.1
   loading_animations: ^2.2.0
+  dio: ^3.0.10
+  path_provider: ^2.0.1
+  chewie: ^1.0.0
+  video_player: ^2.0.2
 
 dev_dependencies:
   flutter_test:
