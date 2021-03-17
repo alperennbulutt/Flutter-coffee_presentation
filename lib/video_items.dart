@@ -5,10 +5,12 @@ import 'package:video_player/video_player.dart';
 class VideoItems extends StatefulWidget {
   final VideoPlayerController videoPlayerController;
   final bool looping;
+  // final bool fullScreen;
 
   const VideoItems({
     @required this.videoPlayerController,
     this.looping,
+    // this.fullScreen,
     Key key,
   }) : super(key: key);
 
@@ -24,11 +26,13 @@ class _VideoItemsState extends State<VideoItems> {
     super.initState();
     _chewieController = ChewieController(
       videoPlayerController: widget.videoPlayerController,
-      aspectRatio: 0.5,
+      fullScreenByDefault: true,
+      aspectRatio: 16 / 9,
       autoInitialize: true,
       showControls: true,
       allowFullScreen: true,
       allowMuting: true,
+      allowPlaybackSpeedChanging: true,
       looping: widget.looping,
       errorBuilder: (context, errorMessage) {
         return Center(
