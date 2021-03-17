@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:karaca_odev/Models/kahveModel.dart';
 import 'package:karaca_odev/Models/videoModel.dart';
 import 'package:karaca_odev/video_items.dart';
 import 'package:video_player/video_player.dart';
@@ -16,10 +17,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<String> videoURLS = new List<String>();
   List<VideoModel> videoModelList = new List<VideoModel>();
+  List<KahveModel> kahveList = new List<KahveModel>();
+
   int category = -1;
   List documents = new List();
-  List categoryPhotos = new List();
-  List categoryNames = new List();
+
   List<File> videoList = new List<File>();
   DocumentSnapshot document;
   bool loaded = false;
@@ -32,18 +34,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<dynamic> getData() async {
     dir = await getApplicationDocumentsDirectory();
-
+    //burada kahve çeşitlerini verileri çektik name
     final QuerySnapshot categories =
         await FirebaseFirestore.instance.collection('kahveler').get();
     documents = categories.docs;
     int docIndex = 0;
     await Future.forEach(documents, (data) async {
+      KahveModel kahveModel = new KahveModel();
       document = await FirebaseFirestore.instance
           .collection("kahveler")
           .doc(data.id)
           .get();
-      categoryNames.add(document['name']);
-      categoryPhotos.add(document['fotoUrl']);
+
+      kahveModel.fotoUrl = document['fotoUrl'];
+      kahveModel.id = document['id'];
+      kahveModel.name = document['name'];
+      //kahve listine yukarıdaki aldıgımız kahveModel nesnesini atadık
+      kahveList.add(kahveModel);
 
       document["videolar"].forEach((videoUrl) => {
             videoModelList
@@ -52,8 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       docIndex++;
     });
-    downloadFile(videoModelList);
-    readVideo();
+    await downloadFile(videoModelList);
+    await readVideo();
   }
 
   Future<void> downloadFile(List videolar) async {
@@ -65,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // print("path ${dir.path}");
         await dio.download(video.url, "${dir.path}/video${i.toString()}.mp4",
             onReceiveProgress: (rec, total) {
-          print("Kaydediliyor: $rec , Toplam: $total");
+          // print("Kaydediliyor: $rec , Toplam: $total");
         });
       } catch (e) {
         print("hata :" + e);
@@ -74,27 +81,25 @@ class _HomeScreenState extends State<HomeScreen> {
     print("Yüklenme Tamam");
   }
 
-  readVideo() {
-    File file;
+  readVideo() async {
     videoList.clear();
     print("buraya girdi");
     videoModelList.asMap().forEach((i, videoModel) {
       videoModel.videoPath = "video${i.toString()}";
-      file = new File('${dir.path}/${videoModel.videoPath}.mp4');
+      print("videoModelList : " +
+          videoModel.videoPath +
+          " - Url : " +
+          videoModel.url);
+      File file = new File('${dir.path}/video${i.toString()}.mp4');
       //BURASI -1 OLACAKTI
       if (category == -1) {
-        setState(() {
-          videoList.add(file);
-        });
-      }
-      if (category == 0) {
-        setState(() {
-          videoList.add(file);
-        });
-      } else if (category != -1 && videoModel.category == category) {
-        setState(() {
-          videoList.add(file);
-        });
+        videoList.add(file);
+      } else if (videoModel.category == category) {
+        print("basılalar : " +
+            videoModel.category.toString() +
+            " - path : " +
+            videoModel.videoPath);
+        videoList.add(file);
       }
     });
     setState(() {
@@ -102,11 +107,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+//homescreen den çıktıgında burası çalışır ve içerisine istenilen metot eklenir
   @override
   void dispose() {
-    //  burada localdeki videoları silme kodu gelecek
-
-    dir.clear();
     super.dispose();
   }
 
@@ -133,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: categoryNames.length,
+                        itemCount: kahveList.length,
                         itemBuilder: (context, index) {
                           return Container(
                             child: Padding(
@@ -151,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       },
                                       child: CircleAvatar(
                                         foregroundImage: NetworkImage(
-                                          categoryPhotos[index],
+                                          kahveList[index].fotoUrl,
                                         ),
                                         radius: _size.height * 0.07,
                                       ),
@@ -161,7 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
-                                        categoryNames[index],
+                                        //kahve listin (0,1...n) indexinin name i
+                                        kahveList[index].name,
                                         style: TextStyle(
                                           fontSize: _size.height * 0.025,
                                         ),
