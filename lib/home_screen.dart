@@ -5,7 +5,6 @@ import 'package:karaca_odev/Models/kahveModel.dart';
 import 'package:karaca_odev/Models/videoModel.dart';
 import 'package:karaca_odev/video_items.dart';
 import 'package:video_player/video_player.dart';
-import 'baslik_widget.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -15,14 +14,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> videoURLS = new List<String>();
+  // ignore: deprecated_member_use
   List<VideoModel> videoModelList = new List<VideoModel>();
+  // ignore: deprecated_member_use
   List<KahveModel> kahveList = new List<KahveModel>();
-
-  int category = -1;
+  // ignore: deprecated_member_use
   List documents = new List();
-
+  // ignore: deprecated_member_use
   List<File> videoList = new List<File>();
+  int category = 0;
   DocumentSnapshot document;
   bool loaded = false;
   var dir;
@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<dynamic> getData() async {
     dir = await getApplicationDocumentsDirectory();
+    print("çekilen path yolllar $dir");
     //burada kahve çeşitlerini verileri çektik name
     final QuerySnapshot categories =
         await FirebaseFirestore.instance.collection('kahveler').get();
@@ -49,12 +50,14 @@ class _HomeScreenState extends State<HomeScreen> {
       kahveModel.fotoUrl = document['fotoUrl'];
       kahveModel.id = document['id'];
       kahveModel.name = document['name'];
-      //kahve listine yukarıdaki aldıgımız kahveModel nesnesini atadık
+
       kahveList.add(kahveModel);
 
       document["videolar"].forEach((videoUrl) => {
-            videoModelList
-                .add(new VideoModel(category: docIndex, url: videoUrl))
+            videoModelList.add(new VideoModel(
+              category: docIndex,
+              url: videoUrl,
+            ))
           });
 
       docIndex++;
@@ -63,13 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
     await readVideo();
   }
 
-  Future<void> downloadFile(List videolar) async {
+  downloadFile(List videolar) {
     Dio dio = Dio();
-    //print(videolar);
+
     videolar.asMap().forEach((i, video) async {
       try {
         print("video " + i.toString());
-        // print("path ${dir.path}");
+
+        //local storage a hangi path e hangi isimde atılacağı
         await dio.download(video.url, "${dir.path}/video${i.toString()}.mp4",
             onReceiveProgress: (rec, total) {
           // print("Kaydediliyor: $rec , Toplam: $total");
@@ -78,27 +82,17 @@ class _HomeScreenState extends State<HomeScreen> {
         print("hata :" + e);
       }
     });
-    print("Yüklenme Tamam");
+    print("yüklenme Tamam");
   }
 
-  readVideo() async {
+  readVideo() {
     videoList.clear();
     print("buraya girdi");
     videoModelList.asMap().forEach((i, videoModel) {
-      videoModel.videoPath = "video${i.toString()}";
-      print("videoModelList : " +
-          videoModel.videoPath +
-          " - Url : " +
-          videoModel.url);
+      //local storage a hangi path e hangi isimde okunacağı
       File file = new File('${dir.path}/video${i.toString()}.mp4');
-      //BURASI -1 OLACAKTI
-      if (category == -1) {
-        videoList.add(file);
-      } else if (videoModel.category == category) {
-        print("basılalar : " +
-            videoModel.category.toString() +
-            " - path : " +
-            videoModel.videoPath);
+      videoModel.videoPath = "video${i.toString()}";
+      if (videoModel.category == category) {
         videoList.add(file);
       }
     });
@@ -116,9 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final _size = MediaQuery.of(context).size;
-
     return Stack(
       children: [
+        //arka fon
         Image.asset(
           "assets/background.jpg",
           height: _size.height,
@@ -130,7 +124,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Baslik(),
+                  //başlık
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 90),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              'EVİNİN BARİSTASI OL',
+                              style: TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.5,
+                                  fontSize: 25),
+                            ),
+                          ),
+                          Text(
+                              'Hangi kahve türü sizi anlatıyor? Favori kahve makinanı seç.'),
+                        ],
+                      ),
+                    ),
+                  ),
                   //kahve çeşitleri
                   Expanded(
                     child: Container(
@@ -140,39 +155,40 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemBuilder: (context, index) {
                           return Container(
                             child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                children: [
-                                  Center(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          category = index;
-                                          loaded = false;
-                                          readVideo();
-                                        });
-                                      },
-                                      child: CircleAvatar(
-                                        foregroundImage: NetworkImage(
-                                          kahveList[index].fotoUrl,
-                                        ),
-                                        radius: _size.height * 0.07,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        //kahve listin (0,1...n) indexinin name i
-                                        kahveList[index].name,
-                                        style: TextStyle(
-                                          fontSize: _size.height * 0.025,
+                              padding: const EdgeInsets.all(5.0),
+                              child: FittedBox(
+                                child: Column(
+                                  children: [
+                                    Center(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            category = index;
+                                            loaded = false;
+                                            readVideo();
+                                          });
+                                        },
+                                        child: CircleAvatar(
+                                          foregroundImage: NetworkImage(
+                                            kahveList[index].fotoUrl,
+                                          ),
+                                          radius: _size.height * 0.07,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          kahveList[index].name,
+                                          style: TextStyle(
+                                            fontSize: _size.height * 0.025,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
@@ -188,13 +204,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisCount: 3),
                       itemCount: videoList.length,
                       itemBuilder: (context, index) {
-                        return Center(
+                        return Padding(
+                          padding: const EdgeInsets.all(3.0),
                           child: FittedBox(
                             fit: BoxFit.fill,
                             child: VideoItems(
-                                videoPlayerController:
-                                    VideoPlayerController.file(
-                                        videoList[index])),
+                              videoPlayerController:
+                                  VideoPlayerController.file(videoList[index]),
+                            ),
                           ),
                         );
                       },

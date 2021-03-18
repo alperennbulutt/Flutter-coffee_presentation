@@ -5,12 +5,10 @@ import 'package:video_player/video_player.dart';
 class VideoItems extends StatefulWidget {
   final VideoPlayerController videoPlayerController;
   final bool looping;
-  // final bool fullScreen;
 
   const VideoItems({
     @required this.videoPlayerController,
     this.looping,
-    // this.fullScreen,
     Key key,
   }) : super(key: key);
 
@@ -45,11 +43,9 @@ class _VideoItemsState extends State<VideoItems> {
     );
   }
 
-  //video içeriği gelmemesi durumunda dispose edip sonlanacak
   @override
   void dispose() {
     _chewieController.dispose();
-
     super.dispose();
   }
 
