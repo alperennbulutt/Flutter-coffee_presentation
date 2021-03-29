@@ -14,18 +14,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // ignore: deprecated_member_use
   List<VideoModel> videoModelList = new List<VideoModel>();
-  // ignore: deprecated_member_use
   List<KahveModel> kahveList = new List<KahveModel>();
-  // ignore: deprecated_member_use
   List documents = new List();
-  // ignore: deprecated_member_use
   List<File> videoList = new List<File>();
   int category = 0;
   DocumentSnapshot document;
   bool loaded = false;
   var dir;
+
   @override
   void initState() {
     getData();
@@ -35,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<dynamic> getData() async {
     dir = await getApplicationDocumentsDirectory();
     print("çekilen path yolllar $dir");
-    //burada kahve çeşitlerini verileri çektik name
+
     final QuerySnapshot categories =
         await FirebaseFirestore.instance.collection('kahveler').get();
     documents = categories.docs;
@@ -73,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
       try {
         print("video " + i.toString());
 
-        //local storage a hangi path e hangi isimde atılacağı
         await dio.download(video.url, "${dir.path}/video${i.toString()}.mp4",
             onReceiveProgress: (rec, total) {
           // print("Kaydediliyor: $rec , Toplam: $total");
@@ -89,7 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
     videoList.clear();
     print("buraya girdi");
     videoModelList.asMap().forEach((i, videoModel) {
-      //local storage a hangi path e hangi isimde okunacağı
       File file = new File('${dir.path}/video${i.toString()}.mp4');
       videoModel.videoPath = "video${i.toString()}";
       if (videoModel.category == category) {
@@ -101,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-//homescreen den çıktıgında burası çalışır ve içerisine istenilen metot eklenir
   @override
   void dispose() {
     super.dispose();
@@ -124,7 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  //başlık
                   Expanded(
                     child: Container(
                       margin: const EdgeInsets.only(top: 90),
@@ -133,20 +126,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Text(
-                              'EVİNİN BARİSTASI OL',
-                              style: TextStyle(
-                                  // fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.5,
-                                  fontSize: 25),
+                              'KAHVENİ KENDİN YAP',
+                              style:
+                                  TextStyle(letterSpacing: 1.5, fontSize: 25),
                             ),
                           ),
                           Text(
-                              'Hangi kahve türü sizi anlatıyor? Favori kahve makinanı seç.'),
+                              'Hangi kahve türü sizi anlatıyor? Videoları izle kararını ver.'),
                         ],
                       ),
                     ),
                   ),
-                  //kahve çeşitleri
                   Expanded(
                     child: Container(
                       child: ListView.builder(
@@ -196,7 +186,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  //videolar
                   Expanded(
                     flex: 2,
                     child: GridView.builder(
@@ -207,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return Padding(
                           padding: const EdgeInsets.all(3.0),
                           child: FittedBox(
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                             child: VideoItems(
                               videoPlayerController:
                                   VideoPlayerController.file(videoList[index]),
